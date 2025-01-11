@@ -8,9 +8,9 @@ Przygotowanie środowiska (po uruchomieniu aplikacji PyCharm):
 2. Stwórz i aktywuj virtualne środowisko
 2.1. W terminalu: 
 python -m venv venv
-2.2. # Windows
+2.2. # Windows:
 venv\Scripts\activate
-2.3. # Linux/Mac
+2.3. # Linux/Mac:
 source venv\bin\activate
 
 3. Zainstaluj wymagane pakiety
