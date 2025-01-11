@@ -5,7 +5,7 @@ Przygotowanie środowiska (po uruchomieniu aplikacji PyCharm):
 1.1. Location: \"Twoja_nazwa"
 1.2. > Create
 
-2. Stwórz i aktuwuj virtualne środowisko
+2. Stwórz i aktywuj virtualne środowisko
 2.1. W terminalu: 
 python -m venv venv
 2.2. # Windows
