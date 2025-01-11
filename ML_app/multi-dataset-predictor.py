@@ -23,12 +23,12 @@ class MultiDatasetPredictor:
                 ('chol', 'Poziom cholesterolu'),
                 ('fbs', 'Cukier we krwi na czczo'),
                 ('restecg', 'Wyniki EKG spoczynkowego'),
-                ('thalach', 'Maksymalne tętno'),  
-                ('exang', 'Dławica wysiłkowa'), 
+                ('thalach', 'Maksymalne tętno'),  # Zmieniono z thalachh na thalach
+                ('exang', 'Dławica wysiłkowa'),  # Zmieniono z exng na exang
                 ('oldpeak', 'Obniżenie odcinka ST'),
-                ('slope', 'Nachylenie odcinka ST'),
-                ('ca', 'Liczba głównych naczyń wieńcowych'), 
-                ('thal', 'Wynik testu Thallium')  
+                ('slope', 'Nachylenie odcinka ST'),  # Zmieniono z slp na slope
+                ('ca', 'Liczba głównych naczyń wieńcowych'),  # Zmieniono z caa na ca
+                ('thal', 'Wynik testu Thallium')  # Zmieniono z thall na thal
             ]
         },
         'diabetes': {

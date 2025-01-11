@@ -3,10 +3,9 @@ import numpy as np
 import pandas as pd
 import joblib
 import os
+from models import db, HeartDiseasePrediction, DiabetesPrediction, LungCancerPrediction
 
-app = Flask(__name__)
-
-# Konfiguracja zbiorów danych
+# First define the DATASETS_CONFIG
 DATASETS_CONFIG = {
     'heart_disease': {
         'features': [
@@ -58,8 +57,21 @@ DATASETS_CONFIG = {
     }
 }
 
-# Słownik na załadowane modele
+# Then create the Flask app
+app = Flask(__name__)
+
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///predictions.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
+
+# Create tables within app context
+with app.app_context():
+    db.create_all()
+
+# Dictionary for loaded models
 loaded_models = {}
+
 
 def load_models(dataset_name):
     """Ładuje modele dla wybranego zbioru danych"""
@@ -72,33 +84,53 @@ def load_models(dataset_name):
             'scaler': joblib.load(f'{models_dir}/scaler.joblib')
         }
 
+
 def prepare_input_data(dataset_name, form_data):
     """Przygotowuje dane wejściowe do odpowiedniego formatu"""
     features = DATASETS_CONFIG[dataset_name]['features']
     input_data = []
-    
+
     for feature_name, _ in features:
         value = form_data[feature_name]
-        # Konwersja wartości dla lung_cancer
         if dataset_name == 'lung_cancer' and feature_name == 'GENDER':
             value = 1 if value.upper() == 'M' else 0
         input_data.append(float(value))
-    
+
     return input_data
+
 
 @app.route('/')
 def index():
     return render_template('index.html', datasets=DATASETS_CONFIG.keys())
 
+
 @app.route('/dataset/<dataset_name>')
 def dataset_form(dataset_name):
     if dataset_name not in DATASETS_CONFIG:
         return "Nieznany zbiór danych", 404
-    
+
     features = DATASETS_CONFIG[dataset_name]['features']
-    return render_template('dataset_form.html', 
-                         dataset_name=dataset_name, 
-                         features=features)
+    return render_template('dataset_form.html',
+                           dataset_name=dataset_name,
+                           features=features)
+
+
+@app.route('/history/<dataset_name>')
+def history(dataset_name):
+    try:
+        if dataset_name == 'heart_disease':
+            predictions = HeartDiseasePrediction.query.order_by(HeartDiseasePrediction.timestamp.desc()).all()
+        elif dataset_name == 'diabetes':
+            predictions = DiabetesPrediction.query.order_by(DiabetesPrediction.timestamp.desc()).all()
+        else:  # lung_cancer
+            predictions = LungCancerPrediction.query.order_by(LungCancerPrediction.timestamp.desc()).all()
+
+        return render_template('history.html',
+                               dataset_name=dataset_name,
+                               predictions=predictions)
+    except Exception as e:
+        return render_template('error.html', error=str(e))
+
 
 @app.route('/predict/<dataset_name>', methods=['POST'])
 def predict(dataset_name):
@@ -106,25 +138,18 @@ def predict(dataset_name):
         if dataset_name not in DATASETS_CONFIG:
             return "Nieznany zbiór danych", 404
 
-        # Załaduj modele jeśli jeszcze nie są załadowane
         if dataset_name not in loaded_models:
             load_models(dataset_name)
 
-        # Pobierz modele i skaler
         models = loaded_models[dataset_name]
-        
-        # Przygotuj dane wejściowe
         input_data = prepare_input_data(dataset_name, request.form)
-        
-        # Sprawdź czy liczba cech się zgadza
+
         expected_features = len(DATASETS_CONFIG[dataset_name]['features'])
         if len(input_data) != expected_features:
             raise ValueError(f"Nieprawidłowa liczba cech. Oczekiwano {expected_features}, otrzymano {len(input_data)}")
 
-        # Skalowanie danych
         input_scaled = models['scaler'].transform([input_data])
 
-        # Dokonaj predykcji wszystkimi modelami
         predictions = {
             'Random Forest': {
                 'prediction': int(models['rf'].predict(input_scaled)[0]),
@@ -140,12 +165,81 @@ def predict(dataset_name):
             }
         }
 
-        return render_template('result.html', 
-                             dataset_name=dataset_name,
-                             predictions=predictions)
+        # Save predictions to database
+        if dataset_name == 'heart_disease':
+            prediction = HeartDiseasePrediction(
+                sex=float(input_data[0]),
+                age=float(input_data[1]),
+                cp=float(input_data[2]),
+                trestbps=float(input_data[3]),
+                chol=float(input_data[4]),
+                fbs=float(input_data[5]),
+                restecg=float(input_data[6]),
+                thalachh=float(input_data[7]),
+                exng=float(input_data[8]),
+                oldpeak=float(input_data[9]),
+                slp=float(input_data[10]),
+                caa=float(input_data[11]),
+                thall=float(input_data[12]),
+                rf_prediction=predictions['Random Forest']['prediction'],
+                rf_probability=predictions['Random Forest']['probability'],
+                lr_prediction=predictions['Logistic Regression']['prediction'],
+                lr_probability=predictions['Logistic Regression']['probability'],
+                dt_prediction=predictions['Decision Tree']['prediction'],
+                dt_probability=predictions['Decision Tree']['probability']
+            )
+        elif dataset_name == 'diabetes':
+            prediction = DiabetesPrediction(
+                pregnancies=float(input_data[0]),
+                glucose=float(input_data[1]),
+                blood_pressure=float(input_data[2]),
+                skin_thickness=float(input_data[3]),
+                insulin=float(input_data[4]),
+                bmi=float(input_data[5]),
+                diabetes_pedigree_function=float(input_data[6]),
+                age=float(input_data[7]),
+                rf_prediction=predictions['Random Forest']['prediction'],
+                rf_probability=predictions['Random Forest']['probability'],
+                lr_prediction=predictions['Logistic Regression']['prediction'],
+                lr_probability=predictions['Logistic Regression']['probability'],
+                dt_prediction=predictions['Decision Tree']['prediction'],
+                dt_probability=predictions['Decision Tree']['probability']
+            )
+        else:  # lung_cancer
+            prediction = LungCancerPrediction(
+                gender=request.form['GENDER'],
+                age=float(input_data[1]),
+                smoking=float(input_data[2]),
+                yellow_fingers=float(input_data[3]),
+                anxiety=float(input_data[4]),
+                peer_pressure=float(input_data[5]),
+                chronic_disease=float(input_data[6]),
+                fatigue=float(input_data[7]),
+                allergy=float(input_data[8]),
+                wheezing=float(input_data[9]),
+                alcohol_consuming=float(input_data[10]),
+                coughing=float(input_data[11]),
+                shortness_of_breath=float(input_data[12]),
+                swallowing_difficulty=float(input_data[13]),
+                chest_pain=float(input_data[14]),
+                rf_prediction=predictions['Random Forest']['prediction'],
+                rf_probability=predictions['Random Forest']['probability'],
+                lr_prediction=predictions['Logistic Regression']['prediction'],
+                lr_probability=predictions['Logistic Regression']['probability'],
+                dt_prediction=predictions['Decision Tree']['prediction'],
+                dt_probability=predictions['Decision Tree']['probability']
+            )
+
+        db.session.add(prediction)
+        db.session.commit()
+
+        return render_template('result.html',
+                               dataset_name=dataset_name,
+                               predictions=predictions)
 
     except Exception as e:
         return render_template('error.html', error=str(e))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

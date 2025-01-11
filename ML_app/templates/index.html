@@ -32,8 +32,12 @@
                                         Ocena ryzyka raka płuc na podstawie objawów i stylu życia
                                     {% endif %}
                                 </p>
-                                <a href="{{ url_for('dataset_form', dataset_name=dataset) }}" 
-                                   class="btn btn-primary">Oblicz</a>
+                                <div class="d-grid gap-2">
+                                    <a href="{{ url_for('dataset_form', dataset_name=dataset) }}"
+                                       class="btn btn-primary mb-2">Oblicz</a>
+                                    <a href="{{ url_for('history', dataset_name=dataset) }}"
+                                       class="btn btn-secondary">Historia predykcji</a>
+                                </div>
                             </div>
                         </div>
                     </div>
