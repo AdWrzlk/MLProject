@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}System Predykcji Chorób{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .prediction-card {
+            transition: transform 0.2s;
+        }
+        .prediction-card:hover {
+            transform: translateY(-5px);
+        }
+        .form-label {
+            font-weight: 500;
+        }
+        .feature-description {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+        .navbar-brand {
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            font-style: italic;
+            font-size: 2.5rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container d-flex justify-content-center">
+        <a class="navbar-brand text-center" href="/">System Predykcji Chorób</a>
+    </div>
+</nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <div>" "</div>
+
+     <div class="container text-center mt-3">
+        <p class="text-muted">
+            Bartosz Deptuła, Mikołaj Mazur, Adam Wrzałek.
+        </p>
+    </div>
+
+    <footer class="footer mt-5 py-3 bg-white">
+        <div class="container text-center">
+            <span class="text-muted">© 2025 System Predykcji Chorób. Wszystkie prawa zastrzeżone.</span>
+        </div>
+    </footer>
+
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
