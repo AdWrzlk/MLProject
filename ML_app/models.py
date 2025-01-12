@@ -1,11 +1,28 @@
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128))
+    heart_disease_predictions = db.relationship('HeartDiseasePrediction', backref='user', lazy=True)
+    diabetes_predictions = db.relationship('DiabetesPrediction', backref='user', lazy=True)
+    lung_cancer_predictions = db.relationship('LungCancerPrediction', backref='user', lazy=True)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 class HeartDiseasePrediction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Input features
@@ -31,9 +48,9 @@ class HeartDiseasePrediction(db.Model):
     dt_prediction = db.Column(db.Integer)
     dt_probability = db.Column(db.Float)
 
-
 class DiabetesPrediction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Input features
@@ -54,9 +71,9 @@ class DiabetesPrediction(db.Model):
     dt_prediction = db.Column(db.Integer)
     dt_probability = db.Column(db.Float)
 
-
 class LungCancerPrediction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Input features

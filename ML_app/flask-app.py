@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
+from flask_login import LoginManager, login_required, current_user
 import numpy as np
 import pandas as pd
 import joblib
 import os
-from models import db, HeartDiseasePrediction, DiabetesPrediction, LungCancerPrediction
+from models import db, User, HeartDiseasePrediction, DiabetesPrediction, LungCancerPrediction
+from auth import auth
 
 # First define the DATASETS_CONFIG
 DATASETS_CONFIG = {
@@ -59,11 +61,27 @@ DATASETS_CONFIG = {
 
 # Then create the Flask app
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '1234'
 
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///predictions.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize database
 db.init_app(app)
+
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
+login_manager.login_message = 'Proszę się zalogować.'
+
+# Register the auth blueprint
+app.register_blueprint(auth)
+
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(int(id))
 
 # Create tables within app context
 with app.app_context():
@@ -71,7 +89,6 @@ with app.app_context():
 
 # Dictionary for loaded models
 loaded_models = {}
-
 
 def load_models(dataset_name):
     """Ładuje modele dla wybranego zbioru danych"""
@@ -83,7 +100,6 @@ def load_models(dataset_name):
             'dt': joblib.load(f'{models_dir}/dt_model.joblib'),
             'scaler': joblib.load(f'{models_dir}/scaler.joblib')
         }
-
 
 def prepare_input_data(dataset_name, form_data):
     """Przygotowuje dane wejściowe do odpowiedniego formatu"""
@@ -98,13 +114,13 @@ def prepare_input_data(dataset_name, form_data):
 
     return input_data
 
-
 @app.route('/')
+@login_required
 def index():
     return render_template('index.html', datasets=DATASETS_CONFIG.keys())
 
-
 @app.route('/dataset/<dataset_name>')
+@login_required
 def dataset_form(dataset_name):
     if dataset_name not in DATASETS_CONFIG:
         return "Nieznany zbiór danych", 404
@@ -114,16 +130,37 @@ def dataset_form(dataset_name):
                            dataset_name=dataset_name,
                            features=features)
 
+@app.route('/delete_prediction/<dataset_name>/<int:prediction_id>')
+@login_required
+def delete_prediction(dataset_name, prediction_id):
+    try:
+        if dataset_name == 'heart_disease':
+            prediction = HeartDiseasePrediction.query.get_or_404(prediction_id)
+        elif dataset_name == 'diabetes':
+            prediction = DiabetesPrediction.query.get_or_404(prediction_id)
+        else:  # lung_cancer
+            prediction = LungCancerPrediction.query.get_or_404(prediction_id)
+
+        if prediction.user_id != current_user.id:
+            flash('Nie masz uprawnień do usunięcia tej predykcji.')
+            return redirect(url_for('history', dataset_name=dataset_name))
+
+        db.session.delete(prediction)
+        db.session.commit()
+        return redirect(url_for('history', dataset_name=dataset_name))
+    except Exception as e:
+        return render_template('error.html', error=str(e))
 
 @app.route('/history/<dataset_name>')
+@login_required
 def history(dataset_name):
     try:
         if dataset_name == 'heart_disease':
-            predictions = HeartDiseasePrediction.query.order_by(HeartDiseasePrediction.timestamp.desc()).all()
+            predictions = HeartDiseasePrediction.query.filter_by(user_id=current_user.id).order_by(HeartDiseasePrediction.timestamp.desc()).all()
         elif dataset_name == 'diabetes':
-            predictions = DiabetesPrediction.query.order_by(DiabetesPrediction.timestamp.desc()).all()
+            predictions = DiabetesPrediction.query.filter_by(user_id=current_user.id).order_by(DiabetesPrediction.timestamp.desc()).all()
         else:  # lung_cancer
-            predictions = LungCancerPrediction.query.order_by(LungCancerPrediction.timestamp.desc()).all()
+            predictions = LungCancerPrediction.query.filter_by(user_id=current_user.id).order_by(LungCancerPrediction.timestamp.desc()).all()
 
         return render_template('history.html',
                                dataset_name=dataset_name,
@@ -131,8 +168,8 @@ def history(dataset_name):
     except Exception as e:
         return render_template('error.html', error=str(e))
 
-
 @app.route('/predict/<dataset_name>', methods=['POST'])
+@login_required
 def predict(dataset_name):
     try:
         if dataset_name not in DATASETS_CONFIG:
@@ -168,6 +205,7 @@ def predict(dataset_name):
         # Save predictions to database
         if dataset_name == 'heart_disease':
             prediction = HeartDiseasePrediction(
+                user_id=current_user.id,
                 sex=float(input_data[0]),
                 age=float(input_data[1]),
                 cp=float(input_data[2]),
@@ -190,6 +228,7 @@ def predict(dataset_name):
             )
         elif dataset_name == 'diabetes':
             prediction = DiabetesPrediction(
+                user_id=current_user.id,
                 pregnancies=float(input_data[0]),
                 glucose=float(input_data[1]),
                 blood_pressure=float(input_data[2]),
@@ -207,6 +246,7 @@ def predict(dataset_name):
             )
         else:  # lung_cancer
             prediction = LungCancerPrediction(
+                user_id=current_user.id,
                 gender=request.form['GENDER'],
                 age=float(input_data[1]),
                 smoking=float(input_data[2]),
@@ -239,7 +279,6 @@ def predict(dataset_name):
 
     except Exception as e:
         return render_template('error.html', error=str(e))
-
 
 if __name__ == '__main__':
     app.run(debug=True)

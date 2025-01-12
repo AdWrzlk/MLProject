@@ -24,7 +24,7 @@
                     <th>Random Forest</th>
                     <th>Logistic Regression</th>
                     <th>Decision Tree</th>
-                    <th>Szczegóły</th>
+                    <th>Akcje</th>
                 </tr>
             </thead>
             <tbody>
@@ -54,12 +54,19 @@
                         ({{ "%.1f"|format(pred.dt_probability * 100) }}%)
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-info" type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#details{{ pred.id }}"
-                                aria-expanded="false">
-                            Pokaż dane wejściowe
-                        </button>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-info" type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#details{{ pred.id }}"
+                                    aria-expanded="false">
+                                Szczegóły
+                            </button>
+                            <a href="{{ url_for('delete_prediction', dataset_name=dataset_name, prediction_id=pred.id) }}"
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('Czy na pewno chcesz usunąć tę predykcję?')">
+                                Usuń
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 <tr>
