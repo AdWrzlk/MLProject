@@ -25,7 +25,7 @@ class HeartDiseasePrediction(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Input features
+    # Cechy wejściowe
     sex = db.Column(db.Integer)
     age = db.Column(db.Integer)
     cp = db.Column(db.Integer)
@@ -40,7 +40,7 @@ class HeartDiseasePrediction(db.Model):
     caa = db.Column(db.Integer)
     thall = db.Column(db.Integer)
 
-    # Predictions
+    # Predykcje
     rf_prediction = db.Column(db.Integer)
     rf_probability = db.Column(db.Float)
     lr_prediction = db.Column(db.Integer)
@@ -53,7 +53,7 @@ class DiabetesPrediction(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Input features
+    # Cechy wejściowe
     pregnancies = db.Column(db.Integer)
     glucose = db.Column(db.Float)
     blood_pressure = db.Column(db.Float)
@@ -63,7 +63,7 @@ class DiabetesPrediction(db.Model):
     diabetes_pedigree_function = db.Column(db.Float)
     age = db.Column(db.Integer)
 
-    # Predictions
+    # Predykcje
     rf_prediction = db.Column(db.Integer)
     rf_probability = db.Column(db.Float)
     lr_prediction = db.Column(db.Integer)
@@ -76,7 +76,7 @@ class LungCancerPrediction(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Input features
+    # Cechy wejściowe
     gender = db.Column(db.String(1))
     age = db.Column(db.Integer)
     smoking = db.Column(db.Integer)
@@ -93,7 +93,7 @@ class LungCancerPrediction(db.Model):
     swallowing_difficulty = db.Column(db.Integer)
     chest_pain = db.Column(db.Integer)
 
-    # Predictions
+    # Predykcje
     rf_prediction = db.Column(db.Integer)
     rf_probability = db.Column(db.Float)
     lr_prediction = db.Column(db.Integer)

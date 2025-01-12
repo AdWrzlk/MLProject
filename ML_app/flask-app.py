@@ -1,13 +1,10 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_required, current_user
-import numpy as np
-import pandas as pd
 import joblib
-import os
 from models import db, User, HeartDiseasePrediction, DiabetesPrediction, LungCancerPrediction
 from auth import auth
 
-# First define the DATASETS_CONFIG
+# Definiowanie DATASETS_CONFIG
 DATASETS_CONFIG = {
     'heart_disease': {
         'features': [
@@ -59,35 +56,33 @@ DATASETS_CONFIG = {
     }
 }
 
-# Then create the Flask app
+# Tworzenie aplikacji
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '1234'
 
-# Database configuration
+# Konfiguracja bazy danych
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///predictions.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialize database
+# Uruchomienie aplikacji
 db.init_app(app)
 
-# Initialize Flask-Login
+# Inicjalizacja Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
 login_manager.login_message = 'Proszę się zalogować.'
 
-# Register the auth blueprint
+# Rejestracje blueprinth(auth)
 app.register_blueprint(auth)
 
 @login_manager.user_loader
 def load_user(id):
     return User.query.get(int(id))
 
-# Create tables within app context
 with app.app_context():
     db.create_all()
 
-# Dictionary for loaded models
 loaded_models = {}
 
 def load_models(dataset_name):
@@ -202,7 +197,7 @@ def predict(dataset_name):
             }
         }
 
-        # Save predictions to database
+        # Zapisz predykcje do bazy danych
         if dataset_name == 'heart_disease':
             prediction = HeartDiseasePrediction(
                 user_id=current_user.id,

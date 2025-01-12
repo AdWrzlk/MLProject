@@ -1,11 +1,10 @@
-import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import classification_report
 import joblib
 import os
 
@@ -23,12 +22,12 @@ class MultiDatasetPredictor:
                 ('chol', 'Poziom cholesterolu'),
                 ('fbs', 'Cukier we krwi na czczo'),
                 ('restecg', 'Wyniki EKG spoczynkowego'),
-                ('thalach', 'Maksymalne tętno'),  # Zmieniono z thalachh na thalach
-                ('exang', 'Dławica wysiłkowa'),  # Zmieniono z exng na exang
+                ('thalach', 'Maksymalne tętno'),
+                ('exang', 'Dławica wysiłkowa'),
                 ('oldpeak', 'Obniżenie odcinka ST'),
-                ('slope', 'Nachylenie odcinka ST'),  # Zmieniono z slp na slope
-                ('ca', 'Liczba głównych naczyń wieńcowych'),  # Zmieniono z caa na ca
-                ('thal', 'Wynik testu Thallium')  # Zmieniono z thall na thal
+                ('slope', 'Nachylenie odcinka ST'),
+                ('ca', 'Liczba głównych naczyń wieńcowych'),
+                ('thal', 'Wynik testu Thallium')
             ]
         },
         'diabetes': {
@@ -92,7 +91,6 @@ class MultiDatasetPredictor:
 
         # Przygotowanie danych
         if dataset_name == 'lung_cancer':
-            # Upewnij się, że wszystkie wymagane kolumny są obecne
             required_columns = [feature[0] for feature in config['features']] + [config['target']]
             missing_columns = set(required_columns) - set(data.columns)
             if missing_columns:
@@ -103,7 +101,6 @@ class MultiDatasetPredictor:
             # Konwersja kolumny LUNG_CANCER na wartości binarne
             data['LUNG_CANCER'] = data['LUNG_CANCER'].map({'YES': 1, 'NO': 0})
 
-            # Upewnij się, że wszystkie kolumny są numeryczne
             for column in data.columns:
                 if column != config['target']:
                     data[column] = pd.to_numeric(data[column], errors='raise')
