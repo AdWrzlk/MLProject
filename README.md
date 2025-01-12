@@ -6,7 +6,7 @@ Przygotowanie środowiska (po uruchomieniu aplikacji PyCharm):
 1.2. > Create
 
 2. Zainstaluj wymagane pakiety
-2.1. pip install flask pandas numpy scikit-learn joblib flask_sqlalchemy datetime
+2.1. pip install flask pandas numpy scikit-learn joblib flask_sqlalchemy datetime flask-login
 2.2. Poczekaj aż ponownie pojawi się wiersz polecenia.
 
 3. (Github) W celu pobrania aplikacji należy kliknąć:
