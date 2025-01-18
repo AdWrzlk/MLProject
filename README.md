@@ -67,3 +67,33 @@ dodatkowe funkcjonalności.
 Biblioteki użyte w aplikacji:
 
 ![image](https://github.com/user-attachments/assets/87bd5022-271e-4412-afe5-c51c304dc916)
+
+5. Scenariusze testowe
+
+a. Rejestrowanie użytkownika
+
+![image](https://github.com/user-attachments/assets/3ca881f2-adeb-4f5a-80bb-cd61ff797916)
+
+b. Logowanie użytkownika
+
+![image](https://github.com/user-attachments/assets/4bd0b056-b21a-4bab-9e0c-aa36713e11fa)
+
+c. Przeprowadzenie predykcji dla chorób serca
+
+![image](https://github.com/user-attachments/assets/c5bb2a3a-e4c6-4d0f-a077-50ccd9789e79)
+
+d. Przeprowadzenie predykcji dla cukrzycy
+
+![image](https://github.com/user-attachments/assets/a457c7f6-fc67-46ed-80dc-05f19be92857)
+
+e. Przeprowadzenie predykcji dla raka płuc
+
+![image](https://github.com/user-attachments/assets/4ff8a158-6015-4d42-bc0f-7aa7563510c9)
+
+f. Zapisywanie elementów w historii predykcji
+
+![image](https://github.com/user-attachments/assets/548a218b-b2a1-43d8-a638-e063a8be7253)
+
+g. Sprawdzenie czy inni użytkownicy nie mają dostępu do danych
+
+![image](https://github.com/user-attachments/assets/4d0dfde3-fe25-4829-b533-737f36ffdedb)
