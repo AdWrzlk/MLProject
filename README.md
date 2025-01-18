@@ -1,14 +1,18 @@
 1. Charakterystyka oprogramowania
+
 a. Nazwa skrócona:
 Porównywarka modeli
+
 b. Nazwa pełna:
 Analiza porównawcza wybranych modeli uczenia maszynowego
+
 c. Krótki opis:
 Aplikacja wykorzystuje trzy różne zbiory danych związane z medycyną, aby wspierać
 diagnozowanie chorób. Po udzieleniu odpowiedzi na pytania przez użytkownika, program
 analizuje informacje i prezentuje prawdopodobieństwo wystąpienia danej choroby (raka
 płuc, cukrzycy, choroby serca). Wyniki są obliczane w oparciu o trzy wybrane modele
 uczenia maszynowego: regresję logistyczną, drzewo decyzyjne oraz las losowy.
+
 2. Prawa autorskie
 a. Autorzy:
 - Adam Wrzałek
