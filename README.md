@@ -72,28 +72,28 @@ Biblioteki użyte w aplikacji:
 
 a. Rejestrowanie użytkownika
 
-![image](https://github.com/user-attachments/assets/3ca881f2-adeb-4f5a-80bb-cd61ff797916)
+![image](https://github.com/user-attachments/assets/b13f8ba0-f5ac-4af1-86fe-18771ce4a7a1)
 
 b. Logowanie użytkownika
 
-![image](https://github.com/user-attachments/assets/4bd0b056-b21a-4bab-9e0c-aa36713e11fa)
+![image](https://github.com/user-attachments/assets/48fcac0f-7d10-453e-9fa1-4b76439021ed)
 
 c. Przeprowadzenie predykcji dla chorób serca
 
-![image](https://github.com/user-attachments/assets/c5bb2a3a-e4c6-4d0f-a077-50ccd9789e79)
+![image](https://github.com/user-attachments/assets/c8fbcdbe-75a8-4e53-87b4-8394b0a22e25)
 
 d. Przeprowadzenie predykcji dla cukrzycy
 
-![image](https://github.com/user-attachments/assets/a457c7f6-fc67-46ed-80dc-05f19be92857)
+![image](https://github.com/user-attachments/assets/32799fd3-503b-4312-b3d2-6e7dc09052a0)
 
 e. Przeprowadzenie predykcji dla raka płuc
 
-![image](https://github.com/user-attachments/assets/4ff8a158-6015-4d42-bc0f-7aa7563510c9)
+![image](https://github.com/user-attachments/assets/9c0a15f4-396c-413e-a45b-2c2df9e9ef84)
 
 f. Zapisywanie elementów w historii predykcji
 
-![image](https://github.com/user-attachments/assets/548a218b-b2a1-43d8-a638-e063a8be7253)
+![image](https://github.com/user-attachments/assets/448a7a6c-7e01-40ba-bce7-c7cb6ca9f689)
 
 g. Sprawdzenie czy inni użytkownicy nie mają dostępu do danych
 
-![image](https://github.com/user-attachments/assets/4d0dfde3-fe25-4829-b533-737f36ffdedb)
+![image](https://github.com/user-attachments/assets/f2961021-2ce5-4aaf-9d9b-4379eccef792)
