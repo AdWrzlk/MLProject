@@ -45,7 +45,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 ![image](https://github.com/user-attachments/assets/e0713495-57dd-4773-9178-292193e354d8)
 
-5. Architektura systemu/oprogramowania
+4. Architektura systemu/oprogramowania
   Aplikacja opiera się na architekturze klient-serwer z trzema głównymi komponentami:
 frontendem (HTML, CSS), backendem (Flask Framework) oraz modelami uczenia
 maszynowego (las losowy, regresja logistyczna, drzewo decyzyjne). Jako główny język
@@ -65,4 +65,5 @@ modułowej budowie, system można łatwo rozszerzać o nowe modele predykcyjne l
 dodatkowe funkcjonalności.
 
 Biblioteki użyte w aplikacji:
+
 ![image](https://github.com/user-attachments/assets/87bd5022-271e-4412-afe5-c51c304dc916)
