@@ -42,9 +42,10 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 
 3. Specyfikacja wymagań
+
 ![image](https://github.com/user-attachments/assets/e0713495-57dd-4773-9178-292193e354d8)
 
-4. Architektura systemu/oprogramowania
+5. Architektura systemu/oprogramowania
   Aplikacja opiera się na architekturze klient-serwer z trzema głównymi komponentami:
 frontendem (HTML, CSS), backendem (Flask Framework) oraz modelami uczenia
 maszynowego (las losowy, regresja logistyczna, drzewo decyzyjne). Jako główny język
