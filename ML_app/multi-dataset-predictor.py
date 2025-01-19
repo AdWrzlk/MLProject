@@ -10,11 +10,18 @@ import os
 
 
 class MultiDatasetPredictor:
+    """
+        Klasa odpowiedzialna za trenowanie i zarządzanie modelami uczenia maszynowego
+        dla różnych zbiorów danych medycznych (choroby serca, cukrzyca, rak płuc).
+        """
+
+    # Konfiguracja zbiorów danych - definiuje ścieżki, kolumny docelowe i cechy dla każdego zbioru
     DATASETS_CONFIG = {
         'heart_disease': {
             'path': 'datasets/heart-disease.csv',
-            'target': 'target',
+            'target': 'target', # Kolumna zawierająca etykiety (0/1)
             'features': [
+                # Lista krotek (nazwa_cechy, opis) dla chorób serca
                 ('age', 'Wiek pacjenta'),
                 ('sex', 'Płeć pacjenta (0 = kobieta, 1 = mężczyzna)'),
                 ('cp', 'Typ bólu w klatce piersiowej'),
@@ -68,29 +75,34 @@ class MultiDatasetPredictor:
     }
 
     def __init__(self):
-        self.current_dataset = None
-        self.models = {}
-        self.scaler = None
-        self.X = None
-        self.y = None
-        self.X_train = None
-        self.X_test = None
-        self.y_train = None
-        self.y_test = None
+        """Inicjalizacja klasy z pustymi atrybutami"""
+        self.current_dataset = None      # Aktualnie wybrany zbiór danych
+        self.models = {}                 # Słownik przechowujący wytrenowane modele
+        self.scaler = None               # Obiekt do standaryzacji danych
+        self.X = None                    # Cechy wejściowe
+        self.y = None                    # Etykiety
+        self.X_train = None              # Zbiór treningowy - cechy
+        self.X_test = None               # Zbiór testowy - cechy
+        self.y_train = None              # Zbiór treningowy - etykiety
+        self.y_test = None               # Zbiór testowy - etykiety
 
     def load_dataset(self, dataset_name):
-        """Wczytuje wybrany zbiór danych"""
+        """
+        Wczytuje i przygotowuje wybrany zbiór danych do trenowania.
+
+        """
         if dataset_name not in self.DATASETS_CONFIG:
             raise ValueError(f"Nieznany zbiór danych: {dataset_name}")
 
         config = self.DATASETS_CONFIG[dataset_name]
         self.current_dataset = dataset_name
 
-        # Wczytanie danych
+        # Wczytanie danych z pliku CSV
         data = pd.read_csv(config['path'])
 
-        # Przygotowanie danych
+        # Specjalne przetwarzanie dla zbioru danych o raku płuc
         if dataset_name == 'lung_cancer':
+            # Sprawdzenie czy wszystkie wymagane kolumny są obecne
             required_columns = [feature[0] for feature in config['features']] + [config['target']]
             missing_columns = set(required_columns) - set(data.columns)
             if missing_columns:
@@ -101,11 +113,12 @@ class MultiDatasetPredictor:
             # Konwersja kolumny LUNG_CANCER na wartości binarne
             data['LUNG_CANCER'] = data['LUNG_CANCER'].map({'YES': 1, 'NO': 0})
 
+            # Konwersja wszystkich kolumn na typ numeryczny
             for column in data.columns:
                 if column != config['target']:
                     data[column] = pd.to_numeric(data[column], errors='raise')
 
-        # Wybierz tylko kolumny zdefiniowane w konfiguracji
+        # Przygotowanie danych do trenowania
         feature_columns = [feature[0] for feature in config['features']]
         self.X = data[feature_columns]
         self.y = data[config['target']]
@@ -119,38 +132,51 @@ class MultiDatasetPredictor:
         self.scaler = StandardScaler()
         self.X_scaled = self.scaler.fit_transform(self.X)
 
-        # Podział danych
+        # Podział na zbiór treningowy i testowy
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             self.X_scaled, self.y, test_size=0.2, random_state=42
         )
 
+        # Wyświetlenie informacji o załadowanym zbiorze
         print(f"\nZaładowano zbiór danych {dataset_name}:")
         print(f"Liczba cech: {len(self.X.columns)}")
         print(f"Liczba próbek: {len(self.X)}")
         print("Cechy:", ", ".join(self.X.columns))
 
     def train_models(self):
-        """Trenuje modele dla aktualnego zbioru danych"""
+        """
+        Trenuje trzy różne modele klasyfikacji:
+        - Random Forest
+        - Logistic Regression
+        - Decision Tree
+        """
         if self.current_dataset is None:
             raise ValueError("Najpierw wybierz zbiór danych!")
 
         print(f"\nRozpoczęto trenowanie modeli dla zbioru {self.current_dataset}...")
 
-        # Trenowanie modeli
+        # Inicjalizacja i trenowanie modeli
         self.models['rf'] = RandomForestClassifier(random_state=42)
         self.models['lr'] = LogisticRegression(random_state=42, max_iter=1000)
         self.models['dt'] = DecisionTreeClassifier(random_state=42)
 
+        # Trenowanie każdego modelu i wyświetlanie wyników
         for name, model in self.models.items():
             print(f"\nTrenowanie modelu {name}...")
             model.fit(self.X_train, self.y_train)
+
+            # Obliczenie dokładności
             train_score = model.score(self.X_train, self.y_train)
             test_score = model.score(self.X_test, self.y_test)
+
             print(f"Dokładność na zbiorze treningowym: {train_score:.4f}")
             print(f"Dokładność na zbiorze testowym: {test_score:.4f}")
 
     def evaluate_models(self):
-        """Ocenia wytrenowane modele"""
+        """
+        Przeprowadza szczegółową ewaluację wytrenowanych modeli,
+        wyświetlając metryki takie jak precision, recall i f1-score.
+        """
         if not self.models:
             print("Najpierw wytreniuj modele!")
             return
@@ -166,7 +192,10 @@ class MultiDatasetPredictor:
             print(classification_report(self.y_test, y_pred))
 
     def save_models(self):
-        """Zapisuje modele i skaler"""
+        """
+        Zapisuje wytrenowane modele i skaler do plików.
+        Tworzy osobny katalog dla każdego zbioru danych.
+        """
         if not self.models:
             print("Najpierw wytreniuj modele!")
             return
@@ -189,13 +218,19 @@ class MultiDatasetPredictor:
         print(f"\nWszystkie modele dla zbioru {self.current_dataset} zostały zapisane!")
 
     def get_features(self):
-        """Zwraca listę cech dla aktualnego zbioru danych"""
+        """
+        Zwraca listę cech dla aktualnego zbioru danych
+        """
         if self.current_dataset is None:
             raise ValueError("Najpierw wybierz zbiór danych!")
         return self.DATASETS_CONFIG[self.current_dataset]['features']
 
 
 def main():
+    """
+    Główna funkcja programu oferująca interfejs konsolowy
+    do interakcji z systemem trenowania modeli.
+    """
     predictor = MultiDatasetPredictor()
 
     while True:
@@ -209,6 +244,7 @@ def main():
         choice = input("\nWybierz opcję (1-5): ")
 
         if choice == '1':
+            # Wybór zbioru danych
             print("\nDostępne zbiory danych:")
             for idx, dataset in enumerate(predictor.DATASETS_CONFIG.keys(), 1):
                 print(f"{idx}. {dataset}")
@@ -221,18 +257,21 @@ def main():
                 print(f"\nBłąd: {str(e)}")
 
         elif choice == '2':
+            # Trenowanie modeli
             try:
                 predictor.train_models()
             except Exception as e:
                 print(f"\nBłąd podczas trenowania modeli: {str(e)}")
 
         elif choice == '3':
+            # Ocena modeli
             try:
                 predictor.evaluate_models()
             except Exception as e:
                 print(f"\nBłąd podczas oceny modeli: {str(e)}")
 
         elif choice == '4':
+            # Zapisywanie modeli
             try:
                 predictor.save_models()
             except Exception as e:

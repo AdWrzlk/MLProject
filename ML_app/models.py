@@ -3,9 +3,25 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
+# Inicjalizacja obiektu bazy danych
 db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
+    """
+    Model użytkownika systemu przechowujący podstawowe informacje oraz relacje z predykcjami.
+    Atrybuty:
+       id: Unikalny identyfikator użytkownika
+       username: Nazwa użytkownika (max 80 znaków)
+       email: Email użytkownika (max 120 znaków)
+       password_hash: Zahashowane hasło
+
+   Relacje:
+       heart_disease_predictions: Relacja z predykcjami chorób serca
+       diabetes_predictions: Relacja z predykcjami cukrzycy
+       lung_cancer_predictions: Relacja z predykcjami raka płuc
+
+   Dziedziczy po UserMixin aby zapewnić integrację z Flask-Login.
+    """
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -15,12 +31,22 @@ class User(UserMixin, db.Model):
     lung_cancer_predictions = db.relationship('LungCancerPrediction', backref='user', lazy=True)
 
     def set_password(self, password):
+        """
+        Hashuje i zapisuje hasło użytkownika
+        """
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
+        """
+        Weryfikuje hasło użytkownika
+        """
         return check_password_hash(self.password_hash, password)
 
 class HeartDiseasePrediction(db.Model):
+    """
+    Model przechowujący predykcje chorób serca.
+    Zawiera zarówno dane wejściowe jak i wyniki predykcji.
+    """
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
@@ -49,6 +75,10 @@ class HeartDiseasePrediction(db.Model):
     dt_probability = db.Column(db.Float)
 
 class DiabetesPrediction(db.Model):
+    """
+    Model przechowujący predykcje cukrzycy.
+    Zawiera zarówno dane wejściowe jak i wyniki predykcji.
+    """
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
@@ -72,6 +102,10 @@ class DiabetesPrediction(db.Model):
     dt_probability = db.Column(db.Float)
 
 class LungCancerPrediction(db.Model):
+    """
+    Model przechowujący predykcje raka płuc.
+    Zawiera zarówno dane wejściowe jak i wyniki predykcji.
+    """
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)

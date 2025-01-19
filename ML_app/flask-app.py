@@ -4,7 +4,7 @@ import joblib
 from models import db, User, HeartDiseasePrediction, DiabetesPrediction, LungCancerPrediction
 from auth import auth
 
-# Definiowanie DATASETS_CONFIG
+# Konfiguracja dla różnych zbiorów danych - definiuje cechy i ich opisy dla każdego typu predykcji
 DATASETS_CONFIG = {
     'heart_disease': {
         'features': [
@@ -56,48 +56,57 @@ DATASETS_CONFIG = {
     }
 }
 
-# Tworzenie aplikacji
+# Inicjalizacja i konfiguracja aplikacji Flask
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '1234'
 
-# Konfiguracja bazy danych
+# Inicjalizacja bazy danych z użyciem skonfigurowanej aplikacji
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///predictions.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Uruchomienie aplikacji
+# Inicjalizacja bazy danych z użyciem skonfigurowanej aplikacji
 db.init_app(app)
 
-# Inicjalizacja Flask-Login
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'auth.login'
-login_manager.login_message = 'Proszę się zalogować.'
+# Konfiguracja systemu logowania
+login_manager = LoginManager() # Utworzenie menedżera logowania
+login_manager.init_app(app) # Powiązanie menedżera z aplikacją
+login_manager.login_view = 'auth.login' # Ustawienie widoku logowania
+login_manager.login_message = 'Proszę się zalogować.' # Komunikat dla niezalogowanych użytkowników
 
-# Rejestracje blueprinth(auth)
+# Rejestracja blueprintu autoryzacji (mechanizm Flaska służący do organizacji funkcjonalności związanych z uwierzytelnianiem użytkowników)
 app.register_blueprint(auth)
 
+# Funkcja pomocnicza dla Flask-Login, ładująca użytkownika na podstawie ID
 @login_manager.user_loader
 def load_user(id):
-    return User.query.get(int(id))
+    return User.query.get(int(id)) # Pobranie użytkownika z bazy danych po ID
 
+# Tworzenie wszystkich tabel w bazie danych
 with app.app_context():
     db.create_all()
 
+# Słownik przechowujący załadowane modele ML
 loaded_models = {}
 
 def load_models(dataset_name):
-    """Ładuje modele dla wybranego zbioru danych"""
+    """
+    Ładuje modele uczenia maszynowego dla wybranego zbioru danych.
+    Modele są ładowane tylko raz i przechowywane w pamięci.
+    """
     if dataset_name not in loaded_models:
         models_dir = f'models/{dataset_name}'
         loaded_models[dataset_name] = {
-            'rf': joblib.load(f'{models_dir}/rf_model.joblib'),
-            'lr': joblib.load(f'{models_dir}/lr_model.joblib'),
-            'dt': joblib.load(f'{models_dir}/dt_model.joblib'),
-            'scaler': joblib.load(f'{models_dir}/scaler.joblib')
+            'rf': joblib.load(f'{models_dir}/rf_model.joblib'), # Random Forest
+            'lr': joblib.load(f'{models_dir}/lr_model.joblib'), # Logistic Regression
+            'dt': joblib.load(f'{models_dir}/dt_model.joblib'), # Decision Tree
+            'scaler': joblib.load(f'{models_dir}/scaler.joblib') # Standaryzator danych
         }
 
 def prepare_input_data(dataset_name, form_data):
-    """Przygotowuje dane wejściowe do odpowiedniego formatu"""
+    """
+    Przygotowuje dane wejściowe do formatu akceptowanego przez modele.
+    Konwertuje dane z formularza na odpowiedni format numeryczny.
+    """
     features = DATASETS_CONFIG[dataset_name]['features']
     input_data = []
 
@@ -109,14 +118,20 @@ def prepare_input_data(dataset_name, form_data):
 
     return input_data
 
+# Ścieżka dla strony głównej
 @app.route('/')
 @login_required
 def index():
+    """Strona główna - wyświetla listę dostępnych zbiorów danych"""
     return render_template('index.html', datasets=DATASETS_CONFIG.keys())
 
+# Ścieżka dla formularza wprowadzania danych
 @app.route('/dataset/<dataset_name>')
 @login_required
 def dataset_form(dataset_name):
+    """
+    Wyświetla forumlarz dla wybranego zbioru danych
+    """
     if dataset_name not in DATASETS_CONFIG:
         return "Nieznany zbiór danych", 404
 
@@ -125,10 +140,15 @@ def dataset_form(dataset_name):
                            dataset_name=dataset_name,
                            features=features)
 
+# Scieżka do usuwania predykcji
 @app.route('/delete_prediction/<dataset_name>/<int:prediction_id>')
 @login_required
 def delete_prediction(dataset_name, prediction_id):
+    """
+    Usuwa wybraną predykcję z bazy danych
+    """
     try:
+        # Wybór odpowiedniego modelu w zależności od typu danych
         if dataset_name == 'heart_disease':
             prediction = HeartDiseasePrediction.query.get_or_404(prediction_id)
         elif dataset_name == 'diabetes':
@@ -136,20 +156,28 @@ def delete_prediction(dataset_name, prediction_id):
         else:  # lung_cancer
             prediction = LungCancerPrediction.query.get_or_404(prediction_id)
 
+        # Sprawdzenie uprawnień - tylko właściciel może usunąć predykcję
         if prediction.user_id != current_user.id:
             flash('Nie masz uprawnień do usunięcia tej predykcji.')
             return redirect(url_for('history', dataset_name=dataset_name))
 
+        # Usunięcie predykcji
         db.session.delete(prediction)
         db.session.commit()
         return redirect(url_for('history', dataset_name=dataset_name))
     except Exception as e:
         return render_template('error.html', error=str(e))
 
+#Ścieżka do historii predykcji
 @app.route('/history/<dataset_name>')
 @login_required
 def history(dataset_name):
+    """
+    Wyświetla historię predykcji dla wybranego zbioru danych
+    """
+
     try:
+        # Pobranie predykcji z bazy danych w zależności od typu
         if dataset_name == 'heart_disease':
             predictions = HeartDiseasePrediction.query.filter_by(user_id=current_user.id).order_by(HeartDiseasePrediction.timestamp.desc()).all()
         elif dataset_name == 'diabetes':
@@ -163,25 +191,40 @@ def history(dataset_name):
     except Exception as e:
         return render_template('error.html', error=str(e))
 
+# Ścieżka do wykonywania finalnych predykcji
 @app.route('/predict/<dataset_name>', methods=['POST'])
 @login_required
 def predict(dataset_name):
+    """
+    Główna funkcja wykonująca predykcje na podstawie wprowadzonych danych
+    1. Sprawdza poprawność danych
+    2. Ładuje odpowiednie modele
+    3. Przygotowuje dane wejściowe
+    4. Wykonuje predykcję wszystkimi modelami
+    5. Zapisuje wyniki do bazy danych
+    6. Zwraca wyniki użytkownikowi
+    """
     try:
+        # Sprawdzenie czy zbiór danych istnieje
         if dataset_name not in DATASETS_CONFIG:
             return "Nieznany zbiór danych", 404
 
+        # Załadowanie modeli jeśli jeszcze nie są załadowane
         if dataset_name not in loaded_models:
             load_models(dataset_name)
 
         models = loaded_models[dataset_name]
         input_data = prepare_input_data(dataset_name, request.form)
 
+        # Walidacja liczby cech
         expected_features = len(DATASETS_CONFIG[dataset_name]['features'])
         if len(input_data) != expected_features:
             raise ValueError(f"Nieprawidłowa liczba cech. Oczekiwano {expected_features}, otrzymano {len(input_data)}")
 
+        # Skalowanie danych wejściowych
         input_scaled = models['scaler'].transform([input_data])
 
+        # Wykonanie predykcji wszystkimi modelami
         predictions = {
             'Random Forest': {
                 'prediction': int(models['rf'].predict(input_scaled)[0]),
@@ -265,9 +308,11 @@ def predict(dataset_name):
                 dt_probability=predictions['Decision Tree']['probability']
             )
 
+        # Zapisanie predykcji do bazy danych
         db.session.add(prediction)
         db.session.commit()
 
+        # Zwrócenie wyników
         return render_template('result.html',
                                dataset_name=dataset_name,
                                predictions=predictions)
@@ -275,5 +320,6 @@ def predict(dataset_name):
     except Exception as e:
         return render_template('error.html', error=str(e))
 
+# Uruchomienie aplikacji w trybie debug
 if __name__ == '__main__':
     app.run(debug=True)
