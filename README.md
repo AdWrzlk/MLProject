@@ -45,25 +45,22 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 ![image](https://github.com/user-attachments/assets/e0713495-57dd-4773-9178-292193e354d8)
 
-4. Architektura systemu/oprogramowania
+4. Architektura systemu/oprogramowania   
 Aplikacja opiera się na architekturze klient-serwer z trzema głównymi komponentami:
-
 frontendem (HTML, CSS), backendem (Flask Framework) oraz modelami uczenia
 maszynowego (las losowy, regresja logistyczna, drzewo decyzyjne).     
-
 Jako główny język programowania został wykorzystany Python.   
-
 Frontend umożliwia użytkownikowi interakcję z systemem poprzez formularze
-wprowadzania danych, wyniki predykcji oraz historię poprzednich analiz.
+wprowadzania danych, wyniki predykcji oraz historię poprzednich analiz.      
 Backend przetwarza dane użytkownika, obsługuje logikę aplikacji oraz komunikuje się z
 modelami uczenia maszynowego, które są dynamicznie wczytywane na podstawie
-wybranego zbioru danych (np. choroby serca, cukrzyca, rak płuc).
-Dane wejściowe są odpowiednio skalowane, a wyniki predykcji są zwracane i zapisywane.
+wybranego zbioru danych (np. choroby serca, cukrzyca, rak płuc).    
+Dane wejściowe są odpowiednio skalowane, a wyniki predykcji są zwracane i zapisywane.     
 Aplikacja korzysta z bazy danych do przechowywania użytkowników, wprowadzonych
-danych oraz wyników predykcji poprzez wykorzystanie SQLalchemy.
+danych oraz wyników predykcji poprzez wykorzystanie SQLalchemy.    
 Architektura aplikacji wspiera filtrowanie wyników (np. wyświetlanie historii na
 podstawie zbioru danych), zarządzanie predykcjami (np. usuwanie wybranych analiz), a
-także prezentację wyników w sposób przejrzysty i zrozumiały dla użytkownika.
+także prezentację wyników w sposób przejrzysty i zrozumiały dla użytkownika.     
 Dzięki modułowej budowie, system można łatwo rozszerzać o nowe modele predykcyjne lub
 dodatkowe funkcjonalności.
 
