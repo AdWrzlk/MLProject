@@ -47,7 +47,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 4. Architektura systemu/oprogramowania   
 Aplikacja opiera się na architekturze klient-serwer z trzema głównymi komponentami:
-frontendem (HTML, CSS), backendem (Flask Framework) oraz modelami uczenia
+frontendem (HTML 5, CSS), backendem (Flask Framework) oraz modelami uczenia
 maszynowego (las losowy, regresja logistyczna, drzewo decyzyjne).     
 Jako główny język programowania został wykorzystany Python (3.11.2).   
 Frontend umożliwia użytkownikowi interakcję z systemem poprzez formularze
