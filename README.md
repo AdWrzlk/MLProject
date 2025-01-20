@@ -1,4 +1,4 @@
-1. Charakterystyka oprogramowania
+#1. Charakterystyka oprogramowania
 
 a. Nazwa skrócona:
 Porównywarka modeli
