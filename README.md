@@ -49,7 +49,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 Aplikacja opiera się na architekturze klient-serwer z trzema głównymi komponentami:
 frontendem (HTML, CSS), backendem (Flask Framework) oraz modelami uczenia
 maszynowego (las losowy, regresja logistyczna, drzewo decyzyjne).     
-Jako główny język programowania został wykorzystany Python.   
+Jako główny język programowania został wykorzystany Python (3.11.2).   
 Frontend umożliwia użytkownikowi interakcję z systemem poprzez formularze
 wprowadzania danych, wyniki predykcji oraz historię poprzednich analiz.      
 Backend przetwarza dane użytkownika, obsługuje logikę aplikacji oraz komunikuje się z
